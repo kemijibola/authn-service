@@ -24,6 +24,13 @@ module.exports = function(db){
         }
         return halObj;
     }
+    modelDef.schema.statics.addRoles = function(id, roles){
+        const user = this.findById(id);
+        roles.map(r => {
+            user.roles.push(r);
+        });
+        return user.save();
+    }
     modelDef.schema.pre('save', function save(next){
         const user = this;
         if (!user.isModified('password')) { return next(); }
@@ -37,7 +44,7 @@ module.exports = function(db){
         });
     })
     modelDef.schema.methods.generateAuthToken = function(expires = 84600){
-        return jwt.sign({_id: this._id}, global.gConfig.jwtPrivateKey, {
+        return jwt.sign({_id: this._id}, global.gConfig.jwtPrivateKey, {algorithm: 'H'},{
             expiresIn: expires
         });
     }

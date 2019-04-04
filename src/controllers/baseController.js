@@ -24,6 +24,7 @@ class BaseController {
         }
         this.actions.push(newAct);
     }
+    
     Error(type,msg){
         // logger.error("Error of type" + type + "found:" + msg. toString())
         if (ERRORCODES[type]){
@@ -36,8 +37,9 @@ class BaseController {
             }
         }
     }
+
     writeHAL(res, obj){
-        if(Array.isArray(ob)){
+        if(Array.isArray(obj)){
             let newArr = obj.map(item => {
                 return item.toHAL();
             });

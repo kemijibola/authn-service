@@ -3,6 +3,7 @@ module.exports = {
     "properties": {
         "email": {
             "type": "string",
+            "unique": true,
             "description": "Email address of user."
         },
         "password": {
@@ -22,7 +23,7 @@ module.exports = {
         "profileCompleted": {
             "type": "boolean",
             "default": false,
-            "description": "Talent/Professional profile completetion status."
+            "description": "Profile completetion status."
         },
         "generalNotification": {
             "type": "boolean",

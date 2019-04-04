@@ -3,6 +3,7 @@ module.exports = {
     "properties": {
         "name": {
             "type": "string",
+            "unique": true,
             "description": "Status name."
         }
     }

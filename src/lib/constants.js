@@ -4,6 +4,7 @@ export const ERRORCODES = {
     ConnectTimeout: 408,
     InternalServerError: 500,
     InvalidArgument: 409,
+    ResourceNotFoundError: 404,
     InvalidContent: 400,
     InvalidCredentials: 401,
     InvalidHeader: 400,
@@ -14,4 +15,10 @@ export const ERRORCODES = {
     RequestThrottled: 429,
     ResourceNotFound: 404,
     WrongAccept: 406
+}
+
+export const UNTAPPEDUSERTYPES = {
+    TALENT: 'Talent',
+    AUDIENCE: 'Audience',
+    PROFESSIONAL: 'Professional'
 }
