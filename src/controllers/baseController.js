@@ -1,13 +1,14 @@
 const express = require('express');
 const halson = require('halson');
 const ErrorHandler = require('../lib/errorHandler');
-const { ERRORCODES } = require('../lib/constants');
+const {ERRORCODES} = require('../lib/constants');
 
 class BaseController {
     constructor(){
         this.actions = [];
         this.server = null;
     }
+
     setUpActions(app, sw){
         this.server = app;
         this.actions.forEach(action => {

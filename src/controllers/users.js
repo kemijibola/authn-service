@@ -1,8 +1,8 @@
 const BaseController = require('./baseController');
 const { UNTAPPEDUSERTYPES } = require('../lib/constants');
 const ApiResponse = require('../models/response');
-const { authorizationService } = require('../services/index');
-
+const { authorizationService, emailService } = require('../services/index');
+const { sendMail } = require('../lib/helpers');
 class Users extends BaseController {
     constructor(lib){
         super();
@@ -12,30 +12,25 @@ class Users extends BaseController {
     async login(req, res, next){
         let body = req.body;
         if (body){
-            if (!body.email || !body.password) { next(this.Error('InvalidContent', 'Provide email or password.')); }
+            if (!body.email || !body.password) { next(this.Error('InvalidContent', 'Provide email and password.')); }
             const user = await this.lib.model('User').findOne({email: body.email.toLowerCase()})
             if (!user) { next(this.Error('InvalidCredentials', 'Invalid credentials.')) }
             user.comparePassword(body.password, async (err,isMatch) => {
                 if(err) {
-                    next(
-                        this.Error('InvalidCredentials', 'Invalid credentials')
-                    )
-                }
-                if (isMatch){
+                    next(this.Error('InvalidCredentials', 'Invalid credentials'))}
+                if(isMatch){
                     // get scopes by user role of user
-                    const scopes = authorizationService(user.roles);
+                    const scopes = await authorizationService(user.roles);
                     // generate token
                     const token = await user.generateAuthToken();
                     // send back API Response to user
                     this.writeHAL(res, new ApiResponse(user, token, scopes));
-
                 }else {
-                    this.Error('InvalidCredentials', 'Invalid credentials')
-                }});
-        }else {
-            next(this.Error('InvalidContent', 'Missing json data'));
-        }
+                    this.Error('InvalidCredentials', 'Invalid credentials')}});
+        }else{
+            next(this.Error('InvalidContent', 'Missing json data'));}
     }
+
     async signup(req, res, next){
         const body = req.body;
         let newUser;
@@ -56,14 +51,18 @@ class Users extends BaseController {
                 switch(userType){
                     case UNTAPPEDUSERTYPES.TALENT:
                         newUser = this.createUser(roles, body);
+                        // send Talent welcome pack mail
+                        this.sendWelcomePack({emailType: 'Welcome Pack', receivers})
                         this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
                     break;
                     case UNTAPPEDUSERTYPES.AUDIENCE:
                         newUser = this.createUser(roles,body);
+                        // send Audience welcome pack mail
                         this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
                     break;
                     case UNTAPPEDUSERTYPES.PROFESSIONAL:
                         newUser = this.createUser(roles,body);
+                        // send Professional welcome pack mail
                         this.writeHAL(res, new ApiResponse(newUser.user,newUser.token, scopes))
                     break;
                     default:
@@ -97,6 +96,11 @@ class Users extends BaseController {
         const token = await user.generateAuthToken();
         await this.lib.model('User').addRoles(user._id, roles);
         return { user: user, token: token };
+    }
+
+    async sendWelcomePack(data){
+        // pass payload to email Service
+        sendMail(body)
     }
 }
 

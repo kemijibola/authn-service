@@ -3,14 +3,12 @@ const jsonSelect  = require('mongoose-json-select');
 const helpers = require("../lib/helpers");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-nodejs');
-const timestamp = require('./plugins/timestamp');
 
 module.exports = function(db){
     let schema = require('../schemas/user.js');
     let modelDef = db.getModelFromSchema(schema);
 
     modelDef.schema.plugin(jsonSelect, '-roles');
-    modelDef.schema.plugin(timestamp(schema));
 
     modelDef.schema.methods.toHAL = function(){
         let halObj = helpers.makeHAL(this.toJSON(),                                                        
@@ -54,5 +52,5 @@ module.exports = function(db){
           });
     }
 
-    return mongoose.model(model.name, modelDef.schema)
+    return mongoose.model(modelDef.name, modelDef.schema)
 }

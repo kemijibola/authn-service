@@ -4,7 +4,7 @@ module.exports = {
         "name": {
             "type": "string",
             "unique": true,
-            "description": "Status name."
+            "description": "Status name. i.e Active, Deleted, Suspended"
         }
     }
 }

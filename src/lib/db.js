@@ -57,7 +57,8 @@ function translateComplexType(v, strType){
     }
     return tmp;
 }
-function getModelFromSchema(){
+
+function getModelFromSchema(schema){
     let data = {                
         name: schema.id,                
         schema: {}        

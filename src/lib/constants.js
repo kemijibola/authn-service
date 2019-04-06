@@ -1,4 +1,4 @@
-export const ERRORCODES = {
+const ERRORCODES = {
     BadDigest: 400,
     BadMethod: 405,
     ConnectTimeout: 408,
@@ -17,8 +17,10 @@ export const ERRORCODES = {
     WrongAccept: 406
 }
 
-export const UNTAPPEDUSERTYPES = {
+const UNTAPPEDUSERTYPES = {
     TALENT: 'Talent',
     AUDIENCE: 'Audience',
     PROFESSIONAL: 'Professional'
 }
+
+module.exports = Object.assign({}, { ERRORCODES, UNTAPPEDUSERTYPES })

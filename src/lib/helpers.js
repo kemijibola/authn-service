@@ -4,12 +4,13 @@ const config = require('config');
 module.exports = {
     makeHAL: makeHAL,
     setupRoutes: setupRoutes,
-    validateKey: validateKey
+    validateKey: validateKey,
+    sendMail: mailBuilder
 }
 
 function setupRoutes(server,swagger, lib){
     for(controller in lib.controllers){
-        cont = lib.controllers[controller](lib);
+        cont = new lib.controllers[controller](lib);
         cont.setUpActions(server, swagger);
     }
 }
@@ -36,4 +37,7 @@ function makeHAL(data, links, embed){
         });
     }
     return obj;
+}
+function mailBuilder(){
+    return 
 }

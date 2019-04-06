@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
 const helpers = require('../lib/helpers');
-const timestamp = require('./plugins/timestamp');
-const auditTrail = require('./plugins/audit');
+const diffPlugin = require('../models/plugins/diffPlugin');
 
-module.exports = db => {
+module.exports = function(db){
     let schema = require("../schemas/role");  
-    let modelDef = db.getModelFromSchema(schema)
-    
-    modelDef.schema.plugin(timestamp(schema));
-    modelDef.schema.plugin(auditTrail(schema, req.user._id));
+    let modelDef = db.getModelFromSchema(schema);
 
     modelDef.schema.methods.toHAL = function(){                
         let json = JSON.stringify(this) //toJSON()                

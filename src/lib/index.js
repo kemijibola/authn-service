@@ -6,5 +6,5 @@ module.exports = {
     controllers: require('../controllers'),
     schemas: require('../schemas'),
     schemaValidator: require('./schemaValidator'),
-    db: require('./db')(mongoose)
+    db: require('./db')
 }
