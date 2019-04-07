@@ -8,11 +8,6 @@ class Users extends BaseController {
         super();
         this.lib = lib;
     }
-
-    index(res){
-        this.writeHAL(res, new ApiResponse('newUser.user','newUser.token', 'scopes'))
-    }
-
     async login(req, res, next){
         let body = req.body;
         if (body){
@@ -37,21 +32,20 @@ class Users extends BaseController {
 
     async signup(req, res, next){
         const body = req.body;
-        let newUser;
-        let scopes;
-        try {
-            if(body){
-                if (!body.userTypeId)  next(this.Error('InvalidArgument', 'Invalid user type.'))
+        if(body){
+            try{
                 const userType = '';
                 let criteria = {};
                 this.lib.db.model('UserType')
-                    .findOne({ _id: body.userTypeId })
+                    .findOne({ _id: body.user_type_id })
                     .exec((err, type) => {
-                        if(err) next(this.Error('InternalServerError', err))
+                        if(err) next(this.Error('InternalServerError', err.message))
                         if(!type) next(this.Error('ResourceNotFoundError', `Could not determine type of user for: ${id}`));
                         userType = type.name;
                 })
                 const roles = await this.lib.model('Role').find({criteria});
+                let newUser;
+                let scopes;
                 switch(userType){
                     case UNTAPPEDUSERTYPES.TALENT:
                         newUser = this.createUser(roles, body);
@@ -72,11 +66,11 @@ class Users extends BaseController {
                     default:
                     break;
                 }
+            }catch(err){
+                next(this.Error('InternalServerError', err.message))
+            }
         }else {
             next(this.Error('InvalidContent', 'Missing json data.'));
-        }
-        }catch(err){
-            next(this.Error('InternalServerError', err));
         }
     }
 
@@ -94,7 +88,7 @@ class Users extends BaseController {
         }
     }
 
-    async createUser(body, roles){
+    static async createUser(body, roles){
         let newUser = this.lib.db.model('User')(body);
         const user = await newUser.save();
         const token = await user.generateAuthToken();
@@ -117,16 +111,23 @@ module.exports = function(lib){
         'summary': 'Adds a new user to the database',
         'responseClass': 'User',
         'nickName': 'addUser',
-    }, controller.createUser)
+    }, controller.signup)
 
-    controller.addAction({
-        'path': '/',
-        'method': 'GET',
-        'params': '',
-        'summary': 'Index page',
-        'responseClass': 'User',
-        'nickName': 'userIndex',
-    }, controller.index)
+    // controller.addAction({
+    //     'path': '/users',
+    //     'method': 'GET',
+    //     'summary': 'Index page',
+    //     'responseClass': 'User',
+    //     'nickName': 'getUsers',
+    // }, controller.index)
+
+    // controller.addAction({
+    //     'path': '/users/:id',
+    //     'method': 'GET',
+    //     'summary': 'Index page',
+    //     'responseClass': 'User',
+    //     'nickName': 'getUser',
+    // }, controller.getById)
 
     return controller;
 }

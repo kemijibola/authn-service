@@ -13,7 +13,6 @@ class BaseController {
         this.server = app;
         this.actions.forEach(action => {
             let method = action['spec']['method'];
-            console.log(method);
             logger.info(`Setting up auto-doc for (${method} ) - ${action['spec']['nickName']}`)
             //sw['add' + method](action);
             app[method.toLowerCase()](action['spec']['path'], action['action']);
@@ -27,16 +26,25 @@ class BaseController {
         this.actions.push(newAct);
     }
     
-    Error(type,msg){
-        // logger.error("Error of type" + type + "found:" + msg. toString())
+    Error(res, type, msg){
+        logger.error("Error of type " + type + " found: " + msg. toString());
+        const error = new ErrorHandler(`Error of type ${type} found: ${msg}`);
         if (ERRORCODES[type]){
-            return new ErrorHandler(type, msg);
-        } else {
-            return {
-                error: true,
+            return res.status(ERRORCODES[type]).json({
+                name: error.name,
                 type: type,
-                msg: msg
-            }
+                msg: error.message,
+                info: error.stack
+            });
+        } else {
+            
+            return res.json({
+                error: true,
+                name: error.name,
+                type: type,
+                msg: error.message,
+                info: error.stack
+            })
         }
     }
 
@@ -54,7 +62,7 @@ class BaseController {
         if (!obj){
              obj = {}
         }
-        res.json(obj);
+        return res.json(obj);
     }
 }
 

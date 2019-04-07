@@ -14,7 +14,8 @@ const ERRORCODES = {
     RequestExpired: 400,
     RequestThrottled: 429,
     ResourceNotFound: 404,
-    WrongAccept: 406
+    WrongAccept: 406,
+    DuplicateRecord: 400
 }
 
 const UNTAPPEDUSERTYPES = {

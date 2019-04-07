@@ -7,7 +7,7 @@
         "port": 9000
     },
     "database": {
-        "host": "mongodb://localhost",
-        "dbName": "untapped-authn"
+        "host": "mongodb://127.0.0.1",
+        "dbName": "untapped_authn"
     }
 }

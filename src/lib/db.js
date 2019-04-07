@@ -9,7 +9,7 @@ let obj = {
         return this.models[mName];
     },
     connect: function(callback){
-        mongoose.connect(config.database.host + "/" + config. database.dbname);
+        mongoose.connect(config.database.host + "/" + config. database.dbName);
         this.connection = mongoose.connection;
         this.connection.on('error', callback);
         this.connection.on('open', callback);

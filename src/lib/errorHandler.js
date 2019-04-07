@@ -1,7 +1,8 @@
-class ErrorHandler {
-    constructor(type, error){
-        this.type = type;
-        this.error = error;
+class ErrorHandler extends Error {
+    constructor(message){
+        super(message);
+        this.name = 'Auth Service Error';
+        this.message = message;
     }
 }
 

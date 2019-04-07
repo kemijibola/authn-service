@@ -4,18 +4,11 @@ module.exports = {
         "schema": {
             "type": "object",
             "properties": {
-               "email": {
-                    "type": 'string',
-                    "format": 'email'
-                },
-                "password": {
-                    "type": 'string'
-                },
-                "user_type_id": {
+               "name": {
                     "type": 'string'
                 }
             },
-            "required": ['email', 'password', 'user_type_id']
+            "required": ['name']
         }
     },
     "PUT": {
