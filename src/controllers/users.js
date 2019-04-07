@@ -9,6 +9,10 @@ class Users extends BaseController {
         this.lib = lib;
     }
 
+    index(res){
+        this.writeHAL(res, new ApiResponse('newUser.user','newUser.token', 'scopes'))
+    }
+
     async login(req, res, next){
         let body = req.body;
         if (body){
@@ -101,7 +105,28 @@ class Users extends BaseController {
     async sendWelcomePack(data){
         // pass payload to email Service
         sendMail(body)
-    }
+    }  
 }
 
-module.exports = Users;
+module.exports = function(lib){
+    let controller = new Users(lib);
+    controller.addAction({
+        'path': '/users',
+        'method': 'POST',
+        'params': '',
+        'summary': 'Adds a new user to the database',
+        'responseClass': 'User',
+        'nickName': 'addUser',
+    }, controller.createUser)
+
+    controller.addAction({
+        'path': '/',
+        'method': 'GET',
+        'params': '',
+        'summary': 'Index page',
+        'responseClass': 'User',
+        'nickName': 'userIndex',
+    }, controller.index)
+
+    return controller;
+}

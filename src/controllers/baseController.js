@@ -1,7 +1,7 @@
-const express = require('express');
 const halson = require('halson');
 const ErrorHandler = require('../lib/errorHandler');
 const {ERRORCODES} = require('../lib/constants');
+const logger = require('../lib/logger');
 
 class BaseController {
     constructor(){
@@ -13,8 +13,9 @@ class BaseController {
         this.server = app;
         this.actions.forEach(action => {
             let method = action['spec']['method'];
-            // logger.info(`Setting up auto-doc for (${method} ) - ${act['spec']['nickname']}`)
-            sw['add' + method](action);
+            console.log(method);
+            logger.info(`Setting up auto-doc for (${method} ) - ${action['spec']['nickName']}`)
+            //sw['add' + method](action);
             app[method.toLowerCase()](action['spec']['path'], action['action']);
         });
     }

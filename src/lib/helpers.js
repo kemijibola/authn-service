@@ -8,9 +8,9 @@ module.exports = {
     sendMail: mailBuilder
 }
 
-function setupRoutes(server,swagger, lib){
+function setupRoutes(server, swagger, lib){
     for(controller in lib.controllers){
-        cont = new lib.controllers[controller](lib);
+        cont = lib.controllers[controller](lib);
         cont.setUpActions(server, swagger);
     }
 }
