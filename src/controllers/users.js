@@ -43,7 +43,7 @@ class Users extends BaseController {
                         if(!type) next(this.Error('ResourceNotFoundError', `Could not determine type of user for: ${id}`));
                         userType = type.name;
                 })
-                const roles = await this.lib.model('Role').find({criteria});
+                const roles = await this.lib.model('Role').find({ userTypeId: body.user_type_id });
                 let newUser;
                 let scopes;
                 switch(userType){

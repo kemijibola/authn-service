@@ -14,6 +14,7 @@ const ERRORCODES = {
     RequestExpired: 400,
     RequestThrottled: 429,
     ResourceNotFound: 404,
+    EntityNotFound: 404,
     WrongAccept: 406,
     DuplicateRecord: 400
 }

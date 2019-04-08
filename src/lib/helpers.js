@@ -16,9 +16,10 @@ function setupRoutes(server, swagger, lib){
 }
 function validateKey(hmacdata, key, lib){
     if(+key === 777) return true;
-    let hmac = require('crypto').createHmac('md5', config.get('secretKey'))
-                                .update(hmacdata)
-                                .digest('hex');
+    let hmac = require('crypto')
+                .createHmac('md5', config.get('secretKey'))
+                .update(hmacdata)
+                .digest('hex');
     return hmac;
 }
 function makeHAL(data, links, embed){
