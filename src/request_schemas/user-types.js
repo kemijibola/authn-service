@@ -6,9 +6,12 @@ module.exports = {
             "properties": {
                "name": {
                     "type": 'string'
+                },
+                "global": {
+                    "type": "boolean"
                 }
             },
-            "required": ['name']
+            "required": ['name', 'global']
         }
     },
     "PUT": {

@@ -6,6 +6,8 @@ module.exports = function(db){
     let schema = require("../schemas/role");  
     let modelDef = db.getModelFromSchema(schema);
 
+    modelDef.schema.plugin(require('./plugins/diffPlugin'));
+
     modelDef.schema.methods.toHAL = function(){                
         let json = JSON.stringify(this) //toJSON()                
         return helpers.makeHAL(json);        

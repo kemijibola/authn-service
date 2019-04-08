@@ -17,12 +17,22 @@ class UserTypes extends BaseController {
                 if(userTypeExist) return next(this.Error(res, 'DuplicateRecord', `User type with name ${userTypeExist.name} exists.`))
                 let newUserType = this.lib.db.model('UserType')(body);
                 const userType = await newUserType.save();
+                if (userType && typeof userType.log === 'function'){
+                    const data = {
+                        action: `create-user-type of ${userType._id}`, // should capture action id for tracking e.g userType._id
+                        category: 'user-types',
+                        // createdBy: req.user.id,
+                        createdBy: 'test user',
+                        message: 'Created user type'
+                    }
+                    userType.log(data);
+                }
                 return this.writeHAL(res, userType);
             }catch(err){
-                next(this.Error('InternalServerError', err.message))
+                next(this.Error(res, 'InternalServerError', err.message))
             }
         }else {
-            next(this.Error('InvalidContent', 'Missing json data.'));
+            next(this.Error(res, 'InvalidContent', 'Missing json data.'));
         }
     }
 }

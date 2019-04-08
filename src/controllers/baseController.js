@@ -27,7 +27,7 @@ class BaseController {
     }
     
     Error(res, type, msg){
-        logger.error("Error of type " + type + " found: " + msg. toString());
+        logger.error("Error of type " + type + " found: " + msg);
         const error = new ErrorHandler(`Error of type ${type} found: ${msg}`);
         if (ERRORCODES[type]){
             return res.status(ERRORCODES[type]).json({

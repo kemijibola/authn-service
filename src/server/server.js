@@ -2,7 +2,6 @@ const swagger = require("swagger-node-express")
 const ErrorHandler = require('../lib/errorHandler');
 const lib = require('../lib');
 const bodyParser = require('body-parser');
-const index = require('../routes/index');
 
 module.exports = (options) => {
     if(!options){
@@ -32,8 +31,6 @@ module.exports = (options) => {
         lib.db.connect(err => {
             if(err) lib.logger.error(`Error trying to connect to database: ${err}`);
             lib.logger.info('Database service successfully started');
-            const mongoose = require('mongoose')
-            mongoose.plugin(require('../models/plugins/diffPlugin'));
         })
     });
 }

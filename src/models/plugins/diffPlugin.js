@@ -4,7 +4,8 @@ const LogSchema = require('./log');
 
 const plugin = function(schema) {
 
-    schema.pre('init', doc => {
+    schema.post('init', doc => {
+        console.log(doc);
         doc._original = doc.toObject({ transform: false })
     })
 

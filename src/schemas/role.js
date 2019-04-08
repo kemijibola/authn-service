@@ -7,12 +7,9 @@ module.exports = {
             "description": "Name of role."
         },
         "userTypeId": {
-            "type": "string",
-            "description": "User the role is assigned to (UserType)."
-        },
-        "accessibility": {
-            "type": "string",
-            "description": "Accessibility level of role."
+            "type": "object",
+            "description": "User the role is assigned to (UserType).",
+            "$ref": "UserType"
         }
     }
 }
