@@ -36,8 +36,18 @@ class Users extends BaseController {
             try{
                 const userType = '';
                 let criteria = {};
+<<<<<<< HEAD
                 const userType = await this.lib.db.model('UserType').findOne({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
+=======
+                this.lib.db.model('UserType')
+                    .findOne({ _id: body.user_type_id })
+                    .exec((err, type) => {
+                        if(err) next(this.Error('InternalServerError', err.message))
+                        if(!type) next(this.Error('ResourceNotFoundError', `Could not determine type of user for: ${id}`));
+                        userType = type.name;
+                })
+>>>>>>> f72026277c2f4162d45ac0776dc736ee2e639b25
                 const roles = await this.lib.model('Role').find({ userTypeId: body.user_type_id });
                 let newUser;
                 let scopes;
