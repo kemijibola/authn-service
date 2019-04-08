@@ -1,4 +1,5 @@
 module.exports = {
     "users": require('./users'),
-    "user-types": require('./user-types')
+    "user-types": require('./user-types'),
+    "roles": require('./roles')
 }

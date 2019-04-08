@@ -36,21 +36,16 @@ class Users extends BaseController {
             try{
                 const userType = '';
                 let criteria = {};
-                this.lib.db.model('UserType')
-                    .findOne({ _id: body.user_type_id })
-                    .exec((err, type) => {
-                        if(err) next(this.Error('InternalServerError', err.message))
-                        if(!type) next(this.Error('ResourceNotFoundError', `Could not determine type of user for: ${id}`));
-                        userType = type.name;
-                })
-                const roles = await this.lib.model('Role').find({criteria});
+                const userType = await this.lib.db.model('UserType').findOne({ _id: body.user_type_id })
+                if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
+                const roles = await this.lib.model('Role').find({ userTypeId: body.user_type_id });
                 let newUser;
                 let scopes;
-                switch(userType){
+                switch(userType.name.toUpperCase()){
                     case UNTAPPEDUSERTYPES.TALENT:
-                        newUser = this.createUser(roles, body);
+                        newUser = await this.createUser(roles, body);
                         // send Talent welcome pack mail
-                        this.sendWelcomePack({emailType: 'Welcome Pack', receivers})
+                        // this.sendWelcomePack({emailType: 'Welcome Pack', receivers})
                         this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
                     break;
                     case UNTAPPEDUSERTYPES.AUDIENCE:
@@ -88,8 +83,8 @@ class Users extends BaseController {
         }
     }
 
-    static async createUser(body, roles){
-        let newUser = this.lib.db.model('User')(body);
+    async createUser(body, roles){
+        let newUser = await this.lib.db.model('User')(body);
         const user = await newUser.save();
         const token = await user.generateAuthToken();
         await this.lib.model('User').addRoles(user._id, roles);

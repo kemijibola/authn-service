@@ -46,9 +46,11 @@ module.exports = {
             "description": "User login count."
         },
         "status": {
-            "type": "object",
-            "description": "User account status.",
-            "$ref": "AccountStatus"
+            "type": "array",
+            "description": "User account status. Could be array of any type of object",
+            "items": {
+                "type": "mixed"
+            }
         },
         "roles": {
             "type": "array",

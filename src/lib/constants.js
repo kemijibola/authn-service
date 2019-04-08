@@ -14,14 +14,19 @@ const ERRORCODES = {
     RequestExpired: 400,
     RequestThrottled: 429,
     ResourceNotFound: 404,
+    EntityNotFound: 404,
     WrongAccept: 406,
     DuplicateRecord: 400
 }
-
 const UNTAPPEDUSERTYPES = {
     TALENT: 'Talent',
     AUDIENCE: 'Audience',
     PROFESSIONAL: 'Professional'
 }
 
-module.exports = Object.assign({}, { ERRORCODES, UNTAPPEDUSERTYPES })
+const JWTOPTIONS = {
+    ISSUER: 'http://127.0.0.1:9000',
+    EXPIRESIN: '12h'
+}
+
+module.exports = Object.assign({}, { ERRORCODES, UNTAPPEDUSERTYPES, ISSUER })
