@@ -11,7 +11,7 @@ class UserTypes extends BaseController {
     }
 
     async index(req, res, next) {
-        const roles = await this.lib.db.model('UserType').find();
+        const roles = await this.lib.db.model('UserType').find().cache();
         this.writeHAL(res, roles);
     }
 
