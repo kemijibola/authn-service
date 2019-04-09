@@ -3,7 +3,6 @@ const ErrorHandler = require('../lib/errorHandler');
 const {ERRORCODES} = require('../lib/constants');
 const logger = require('../lib/logger');
 const mongoose = require('mongoose');
-const {ObjectId} = require('mongodb')
 const helpers = require('../lib/helpers');
 
 class BaseController {
@@ -56,7 +55,7 @@ class BaseController {
             let newArr = obj.map(item => {
                 if (typeof(item._id) === 'string'){
                     item._id = mongoose.Types.ObjectId(item._id);
-                    let json = JSON.stringify(item) //toJSON()                
+                    let json = JSON.stringify(item)               
                     return helpers.makeHAL(json);  
                 }
                 return item.toHAL();

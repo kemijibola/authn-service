@@ -1,9 +1,14 @@
 module.exports = {
     "id": "Key",
     "properties": {
+        "kid": {
+            "type": 'number',
+            "default": 0,
+            "description": "Key id."
+        },
         "type": {
             "type": "string",
-            "description": "Key type. i.e RSA256"
+            "description": "Key type. i.e RSA256."
         },
         "publicKey": {
             "type": "string",
@@ -12,6 +17,10 @@ module.exports = {
         "privateKey": {
             "type": "string",
             "description": "Private key.",
+        },
+        "activated": {
+            "type": "boolean",
+            "description": "Describes status of the key"
         }
     }
 }

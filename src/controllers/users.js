@@ -35,9 +35,10 @@ class Users extends BaseController {
         if(body){
             try{
                 const userType = '';
-                let criteria = {};
+                // confirm the type of user sent by client is valid
                 const userType = await this.lib.db.model('UserType').findById({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
+                // get roles for the type of user
                 const roles = await this.lib.model('Role').find({ userTypeId: body.user_type_id });
                 let newUser;
                 let scopes;
@@ -84,35 +85,30 @@ class Users extends BaseController {
     }
 
     async createUser(body, roles){
-        // const keyMap =
-        // let signOptions = {
-        //     issuer: JWTOPTIONS.ISSUER,
-        //     audience: body.audience,
-        //     expiresIn: JWTOPTIONS.EXPIRESIN,
-        //     algorithm: ,
-        //     keyid: 
-        // }
-
-        let newUser = await this.lib.db.model('User')(body);
-        const user = await newUser.save();
-        const token = await user.generateAuthToken()
-        await this.lib.model('User').addRoles(user._id, roles);
-        return { user: user, token: token };
+        // audience is the clientId and must be sent by the client
+        const key = await this.getCurrentApiKeys();
+        console.log(key);
+        let signOptions = {
+            issuer: JWTOPTIONS.ISSUER,
+            audience: body.audience,
+            expiresIn: JWTOPTIONS.EXPIRESIN,
+            algorithm: key.type,
+            keyid: key.kid
+        }
+        // let newUser = await this.lib.db.model('User')(body);
+        // const user = await newUser.save();
+        // const token = await user.generateAuthToken(key.privateKey, signOptions);
+        // await this.lib.model('User').addRoles(user._id, roles);
+        // return { user: user, token: token };
     }
 
-    async getApiKeys(){
-        const keys = await this.lib.db('Key').findOne({})
-        let keyMap = {};
-        for(let key of keys){
-            if(!keyMap[key.kid]){
-                keyMap[key.id] = {
-                    type: key.type,
-                    publicKey: key.publicKey,
-                    privateKey: key.privateKey
-                }
-            }
-        }
-        return keyMap;
+    async getCurrentApiKeys(keyId = ''){
+        let criteria = {};
+        criteria.$or = {
+            kid: keyId,
+            activated: true
+        };
+        return await this.lib.db.model('Key').findOne(criteria).cache();
     }
 
     async sendWelcomePack(data){

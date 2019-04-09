@@ -41,7 +41,7 @@ module.exports = function(db){
           });
         });
     })
-    modelDef.schema.methods.generateAuthToken = function(scopes , privateKey, signOptions){
+    modelDef.schema.methods.generateAuthToken = function(privateKey, signOptions, scopes = []){
         // the extra data to be sent back to user
         // user_id => sub
         // scopes = []

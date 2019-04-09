@@ -3,7 +3,6 @@ const redis = require('redis');
 const util = require('util');
 const config = require('config');
 
-
 const client = redis.createClient(config.redis.host);
 client.get = util.promisify(client.get);
 
@@ -19,6 +18,7 @@ mongoose.Query.prototype.exec = async function(){
     if (!this.useCache){
         return exec.apply(this, arguments);
     }
+
     const key = JSON.stringify(Object.assign({}, this.getQuery(), {
         collection: this.mongooseCollection.name
     }));
