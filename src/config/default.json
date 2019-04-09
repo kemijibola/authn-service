@@ -9,5 +9,8 @@
     "database": {
         "host": "mongodb://127.0.0.1",
         "dbName": "untapped_authn"
+    },
+    "redis": {
+        "host": "redis://127.0.0.1:6379"
     }
 }
