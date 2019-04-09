@@ -10,13 +10,20 @@ class Roles extends BaseController {
         super();
         this.lib = lib;
     }
+
+    async index(req, res, next) {
+        const roles = this.lib.db.model('Role').find();
+        console.log(roles);
+        //this.writeHAL(res, roles);
+    }
+
     async create(req, res, next){
         const body = req.body;
         if(body){
             try{
                 const roleExist = await this.lib.db.model('Role').findOne({ name: body.name });
                 if(roleExist) return next(this.Error(res, 'DuplicateRecord', `Role with name ${ roleExist.name } exists.`))
-                const userType = await this.lib.db.model('UserType').findOne({ _id: body.user_type_id })
+                const userType = await this.lib.db.model('UserType').findById({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
                 let newRole = this.lib.db.model('Role')(body);
                 const role = await newRole.save();
@@ -49,6 +56,14 @@ module.exports = function(lib){
         'responseClass': 'Role',
         'nickName': 'addRole',
     }, controller.create)
+
+    controller.addAction({
+        'path': '/roles',
+        'method': 'GET',
+        'summary': 'Index page',
+        'responseClass': 'Role',
+        'nickName': 'getRoles',
+    }, controller.index)
 
     return controller;
 }

@@ -2,6 +2,7 @@ const swagger = require("swagger-node-express")
 const ErrorHandler = require('../lib/errorHandler');
 const lib = require('../lib');
 const bodyParser = require('body-parser');
+require('../services/cache');
 
 module.exports = (options) => {
     if(!options){

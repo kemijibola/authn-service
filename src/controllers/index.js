@@ -1,7 +1,8 @@
 module.exports = {
     Users: require('./users'),
     UserTypes: require('./user-types'),
-    Roles: require('./roles')
+    Roles: require('./roles'),
+    Keys: require('./keys')
 }
 
 var controllers = require('./');

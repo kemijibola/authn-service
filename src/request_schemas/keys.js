@@ -4,21 +4,23 @@ module.exports = {
         "schema": {
             "type": "object",
             "properties": {
-               "email": {
-                    "type": 'string',
-                    "format": 'email'
+                "kid": {
+                    "type": 'number'
                 },
-                "password": {
+               "type": {
                     "type": 'string'
                 },
-                "user_type_id": {
+                "publicKey": {
                     "type": 'string'
                 },
-                "audience": {
-                    "type": "string"
+                "privateKey": {
+                    "type": 'string'
+                },
+                "activated": {
+                    "type": "boolean"
                 }
             },
-            "required": ['email', 'password', 'user_type_id', 'audience']
+            "required": ['kid','type', 'publicKey', 'privateKey', 'activated']
         }
     },
     "PUT": {

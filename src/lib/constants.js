@@ -29,4 +29,4 @@ const JWTOPTIONS = {
     EXPIRESIN: '12h'
 }
 
-module.exports = Object.assign({}, { ERRORCODES, UNTAPPEDUSERTYPES, ISSUER })
+module.exports = Object.assign({}, { ERRORCODES, UNTAPPEDUSERTYPES, JWTOPTIONS })

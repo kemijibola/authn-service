@@ -9,6 +9,12 @@ class UserTypes extends BaseController {
         super();
         this.lib = lib;
     }
+
+    async index(req, res, next) {
+        const roles = await this.lib.db.model('UserType').find();
+        this.writeHAL(res, roles);
+    }
+
     async create(req, res, next){
         const body = req.body;
         if(body){
@@ -46,6 +52,14 @@ module.exports = function(lib){
         'responseClass': 'UserType',
         'nickName': 'addUserType',
     }, controller.create)
+
+    controller.addAction({
+        'path': '/user-types',
+        'method': 'GET',
+        'summary': 'Adds a new user-type to the database',
+        'responseClass': 'UserType',
+        'nickName': 'getTypes',
+    }, controller.index)
 
     return controller;
 }

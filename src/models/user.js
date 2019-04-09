@@ -41,10 +41,11 @@ module.exports = function(db){
           });
         });
     })
-    modelDef.schema.methods.generateAuthToken = function(expires = 84600){
-        return jwt.sign({_id: this._id}, global.gConfig.jwtPrivateKey, {algorithm: 'H'},{
-            expiresIn: expires
-        });
+    modelDef.schema.methods.generateAuthToken = function(scopes , privateKey, signOptions){
+        // the extra data to be sent back to user
+        // user_id => sub
+        // scopes = []
+        return jwt.sign(scopes, privateKey, signOptions);
     }
     modelDef.schema.methods.comparePassword = function comparePassword(candidatePassword, cb){
             bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {

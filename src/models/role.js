@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const helpers = require('../lib/helpers');
-const diffPlugin = require('../models/plugins/diffPlugin');
 
 module.exports = function(db){
     let schema = require("../schemas/role");  

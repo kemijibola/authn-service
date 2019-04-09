@@ -3,6 +3,7 @@ module.exports = {
         "AccountStatus": require('./accountStatus'),
         "UserType": require('./userType'),
         "User": require('./user'),
-        "Role": require('./role')
+        "Role": require('./role'),
+        "Key": require('./key')
     }
 }
