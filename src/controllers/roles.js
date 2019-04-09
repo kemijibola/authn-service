@@ -13,8 +13,7 @@ class Roles extends BaseController {
 
     async index(req, res, next) {
         const roles = this.lib.db.model('Role').find();
-        console.log(roles);
-        //this.writeHAL(res, roles);
+        this.writeHAL(res, roles);
     }
 
     async create(req, res, next){
