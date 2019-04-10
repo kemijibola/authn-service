@@ -3,6 +3,7 @@ const jsonSelect  = require('mongoose-json-select');
 const helpers = require("../lib/helpers");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-nodejs');
+const config = require('config');
 
 module.exports = function(db){
     let schema = require('../schemas/user.js');
@@ -22,8 +23,9 @@ module.exports = function(db){
         }
         return halObj;
     }
-    modelDef.schema.statics.addRoles = function(id, roles){
-        const user = this.findById(id);
+    modelDef.schema.methods.addRoles = function(id, roles){
+        console.log(this);
+        const user = this;
         roles.map(r => {
             user.roles.push(r);
         });
@@ -41,11 +43,11 @@ module.exports = function(db){
           });
         });
     })
-    modelDef.schema.methods.generateAuthToken = function(privateKey, signOptions, scopes = []){
+    modelDef.schema.methods.generateAuthToken = async function(privateKey, signOptions, scopes = {}){
         // the extra data to be sent back to user
         // user_id => sub
-        // scopes = []
-        return jwt.sign(scopes, privateKey, signOptions);
+        // scopes = {}
+        return await jwt.sign({id: this._id}, privateKey, signOptions);
     }
     modelDef.schema.methods.comparePassword = function comparePassword(candidatePassword, cb){
             bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {

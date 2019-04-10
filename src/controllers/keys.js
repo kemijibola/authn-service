@@ -29,6 +29,7 @@ class Keys extends BaseController {
                 
                 const canAddKey = await this.lib.db.model('Key').findOne({ activated: true });
                 if(canAddKey) return next(this.Error(res, 'DuplicateRecord', `Key id: ${canAddKey.kid} is currently in use. Deactivate key before activating another one.`)) 
+                
                 let newKey = this.lib.db.model('Key')(body);
                 const key = await newKey.save();
                 // if (key && typeof key.log === 'function'){

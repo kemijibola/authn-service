@@ -15,7 +15,8 @@ class BaseController {
         this.server = app;
         this.actions.forEach(action => {
             let method = action['spec']['method'];
-            logger.info(`Setting up auto-doc for (${method} ) - ${action['spec']['nickName']}`)
+            // uncomment when setting up swagger
+            // logger.info(`Setting up auto-doc for (${method} ) - ${action['spec']['nickName']}`)
             //sw['add' + method](action);
             app[method.toLowerCase()](action['spec']['path'], action['action']);
         });

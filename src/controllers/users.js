@@ -3,6 +3,10 @@ const { UNTAPPEDUSERTYPES, JWTOPTIONS} = require('../lib/constants');
 const ApiResponse = require('../models/response');
 const { authorizationService, emailService } = require('../services/index');
 const { sendMail } = require('../lib/helpers');
+const config = require('config');
+// var AWS = require('aws-sdk');
+// AWS.config.region = 'us-east-2b';
+// var s3 = new AWS.S3();
 class Users extends BaseController {
     constructor(lib){
         super();
@@ -34,12 +38,11 @@ class Users extends BaseController {
         const body = req.body;
         if(body){
             try{
-                const userType = '';
                 // confirm the type of user sent by client is valid
                 const userType = await this.lib.db.model('UserType').findById({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
                 // get roles for the type of user
-                const roles = await this.lib.model('Role').find({ userTypeId: body.user_type_id });
+                const roles = await this.lib.db.model('Role').find({ userTypeId: body.user_type_id });
                 let newUser;
                 let scopes;
                 switch(userType.name.toUpperCase()){
@@ -63,10 +66,10 @@ class Users extends BaseController {
                     break;
                 }
             }catch(err){
-                next(this.Error('InternalServerError', err.message))
+                next(res, this.Error(res,'InternalServerError', err.message))
             }
         }else {
-            next(this.Error('InvalidContent', 'Missing json data.'));
+            next(this.Error(res, 'InvalidContent', 'Missing json data.'));
         }
     }
 
@@ -84,31 +87,54 @@ class Users extends BaseController {
         }
     }
 
-    async createUser(body, roles){
+    async createUser(roles, body){
         // audience is the clientId and must be sent by the client
-        const key = await this.getCurrentApiKeys();
-        console.log(key);
+        //const key = await this.getCurrentApiKey();
         let signOptions = {
             issuer: JWTOPTIONS.ISSUER,
             audience: body.audience,
             expiresIn: JWTOPTIONS.EXPIRESIN,
-            algorithm: key.type,
-            keyid: key.kid
+            algorithm: config.publicKeys[JWTOPTIONS.CURRENTKEY].type,
+            keyid: JWTOPTIONS.CURRENTKEY
         }
-        // let newUser = await this.lib.db.model('User')(body);
-        // const user = await newUser.save();
-        // const token = await user.generateAuthToken(key.privateKey, signOptions);
-        // await this.lib.model('User').addRoles(user._id, roles);
-        // return { user: user, token: token };
+        const userObj = {
+            email: body.email,
+            password: body.password    
+        }
+        const privateKey = config.secretKeys[JWTOPTIONS.CURRENTKEY].replace(/\\n/g, '\n');
+        let newUser = await this.lib.db.model('User')(userObj);
+        const user = await newUser.save();
+        const token = await user.generateAuthToken(privateKey, signOptions);
+        await user.addRoles(user._id, roles);
+        return { user: user, token: token };
     }
 
-    async getCurrentApiKeys(keyId = ''){
-        let criteria = {};
-        criteria.$or = {
-            kid: keyId,
-            activated: true
-        };
-        return await this.lib.db.model('Key').findOne(criteria).cache();
+    async getCurrentApiKey(){
+
+        // production implementation (AWS)
+
+        let params = {
+            Bucket: 'jether-tech-credentials',
+            Key: 'web-app/secretKeys.json'
+        }
+        s3.getObject(params, function(err, data) {
+            if (err) {
+                console.log('error',err);
+            } else {
+                data = JSON.parse(data.Body.toString());
+                for (i in data) {
+                    console.log('Setting environment variable: ' + i);
+                    process.env[i] = data[i];
+                }
+            }
+        });
+        
+        // fetch from .env in development
+
+        // return await this.lib.db.model('Key')
+        // .findOne({activated: true})
+        // .select('kid privateKey type')
+        // .cache();
     }
 
     async sendWelcomePack(data){
