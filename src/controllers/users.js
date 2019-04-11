@@ -3,12 +3,21 @@ const { UNTAPPEDUSERTYPES, JWTOPTIONS} = require('../lib/constants');
 const ApiResponse = require('../models/response');
 const { authorizationService, emailService } = require('../services/index');
 const { sendMail } = require('../lib/helpers');
+const config = require('config');
+// var AWS = require('aws-sdk');
+// AWS.config.region = 'us-east-2b';
+// var s3 = new AWS.S3();
 class Users extends BaseController {
     constructor(lib){
         super();
         this.lib = lib;
     }
     async login(req, res, next){
+
+        /* In login implementation, use audience to send back scopes of the user
+        **   For example: ClientApp1 is an audience, send back roles needed for clientApp1
+        */ 
+       
         let body = req.body;
         if (body){
             if (!body.email || !body.password) { next(this.Error('InvalidContent', 'Provide email and password.')); }
@@ -34,38 +43,22 @@ class Users extends BaseController {
         const body = req.body;
         if(body){
             try{
-                const userType = '';
-                let criteria = {};
+                // This is checking that the user_type_id sent by client is a valid type of user 
+                // in the database. For Example: Talent,Audience,Professional
+
                 const userType = await this.lib.db.model('UserType').findById({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
-                const roles = await this.lib.model('Role').find({ userTypeId: body.user_type_id });
-                let newUser;
-                let scopes;
-                switch(userType.name.toUpperCase()){
-                    case UNTAPPEDUSERTYPES.TALENT:
-                        newUser = await this.createUser(roles, body);
-                        // send Talent welcome pack mail
-                        // this.sendWelcomePack({emailType: 'Welcome Pack', receivers})
-                        this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
-                    break;
-                    case UNTAPPEDUSERTYPES.AUDIENCE:
-                        newUser = this.createUser(roles,body);
-                        // send Audience welcome pack mail
-                        this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
-                    break;
-                    case UNTAPPEDUSERTYPES.PROFESSIONAL:
-                        newUser = this.createUser(roles,body);
-                        // send Professional welcome pack mail
-                        this.writeHAL(res, new ApiResponse(newUser.user,newUser.token, scopes))
-                    break;
-                    default:
-                    break;
-                }
+
+                // We are getting the roles of the user based on the type of user the client sent
+                const roles = await this.lib.db.model('Role').find({ user_type_id: body.user_type_id });
+                
+                const newUser = await this.createUser(roles, body);
+                this.writeHAL(res, newUser.token);
             }catch(err){
-                next(this.Error('InternalServerError', err.message))
+                next(res, this.Error(res,'InternalServerError', err.message))
             }
         }else {
-            next(this.Error('InvalidContent', 'Missing json data.'));
+            next(this.Error(res, 'InvalidContent', 'Missing json data.'));
         }
     }
 
@@ -83,36 +76,54 @@ class Users extends BaseController {
         }
     }
 
-    async createUser(body, roles){
-        // const keyMap =
-        // let signOptions = {
-        //     issuer: JWTOPTIONS.ISSUER,
-        //     audience: body.audience,
-        //     expiresIn: JWTOPTIONS.EXPIRESIN,
-        //     algorithm: ,
-        //     keyid: 
-        // }
-
-        let newUser = await this.lib.db.model('User')(body);
+    async createUser(roles, body){
+        let signOptions = {
+            issuer: JWTOPTIONS.ISSUER,
+            subject: '',
+            audience: body.audience,
+            expiresIn: JWTOPTIONS.EXPIRESIN,
+            algorithm: config.publicKeys[JWTOPTIONS.CURRENTKEY].type,
+            keyid: JWTOPTIONS.CURRENTKEY
+        }
+        const userObj = {
+            email: body.email,
+            password: body.password    
+        }
+        const payload = {
+            scopes: []
+        };
+        const privateKey = config.secretKeys[JWTOPTIONS.CURRENTKEY].replace(/\\n/g, '\n');
+        let newUser = await this.lib.db.model('User')(userObj);
         const user = await newUser.save();
-        const token = await user.generateAuthToken()
-        await this.lib.model('User').addRoles(user._id, roles);
-        return { user: user, token: token };
+        
+        // The user has not yet verified email, sending them a token with empty scopes
+        // is to allow them into the app with limited permissions
+        // This is applicable to all types of users in the database
+
+        const token = await user.generateAuthToken(privateKey, signOptions, payload);
+        await user.addRoles(user._id, roles);
+        return { token: token };
     }
 
-    async getApiKeys(){
-        const keys = await this.lib.db('Key').findOne({})
-        let keyMap = {};
-        for(let key of keys){
-            if(!keyMap[key.kid]){
-                keyMap[key.id] = {
-                    type: key.type,
-                    publicKey: key.publicKey,
-                    privateKey: key.privateKey
+    async getCurrentApiKey(){
+
+        // production implementation store private key in (AWS)
+
+        let params = {
+            Bucket: 'jether-tech-credentials',
+            Key: 'web-app/secretKeys.json'
+        }
+        s3.getObject(params, function(err, data) {
+            if (err) {
+                console.log('error',err);
+            } else {
+                data = JSON.parse(data.Body.toString());
+                for (i in data) {
+                    console.log('Setting environment variable: ' + i);
+                    process.env[i] = data[i];
                 }
             }
-        }
-        return keyMap;
+        });
     }
 
     async sendWelcomePack(data){

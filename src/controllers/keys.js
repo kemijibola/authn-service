@@ -10,13 +10,25 @@ class Keys extends BaseController {
         super();
         this.lib = lib;
     }
+
+    // only return kid,publicKey of key queried
+    async getPublicKeyByKeyId(kid){
+
+    }
+
+    // This is a consious operation and must not support batch deactivation / activation
+    async deactivateKey(key){
+
+    }
+
+    // protect create route for only ADMINs / BackOffice users
     async create(req, res, next){
         const body = req.body;
         if(body){
             try{
                 
-                // TODO :: ensure on key has been activated before.
-                // If so, send message back to deactivate active key first
+                const canAddKey = await this.lib.db.model('Key').findOne({ activated: true });
+                if(canAddKey) return next(this.Error(res, 'DuplicateRecord', `Key id: ${canAddKey.kid} is currently in use. Deactivate key before activating another one.`)) 
                 
                 let newKey = this.lib.db.model('Key')(body);
                 const key = await newKey.save();

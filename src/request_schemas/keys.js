@@ -4,9 +4,6 @@ module.exports = {
         "schema": {
             "type": "object",
             "properties": {
-                "kid": {
-                    "type": 'number'
-                },
                "type": {
                     "type": 'string'
                 },
@@ -20,7 +17,7 @@ module.exports = {
                     "type": "boolean"
                 }
             },
-            "required": ['kid','type', 'publicKey', 'privateKey', 'activated']
+            "required": ['type', 'publicKey', 'privateKey', 'activated']
         }
     },
     "PUT": {

@@ -19,14 +19,15 @@ const ERRORCODES = {
     DuplicateRecord: 400
 }
 const UNTAPPEDUSERTYPES = {
-    TALENT: 'Talent',
-    AUDIENCE: 'Audience',
-    PROFESSIONAL: 'Professional'
+    TALENT: 'TALENT',
+    AUDIENCE: 'AUDIENCE',
+    PROFESSIONAL: 'PROFESSIONAL'
 }
 
 const JWTOPTIONS = {
     ISSUER: 'http://127.0.0.1:9000',
-    EXPIRESIN: '12h'
+    EXPIRESIN: '12h',
+    CURRENTKEY: '42'
 }
 
 module.exports = Object.assign({}, { ERRORCODES, UNTAPPEDUSERTYPES, JWTOPTIONS })
