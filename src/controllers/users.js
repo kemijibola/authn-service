@@ -43,37 +43,17 @@ class Users extends BaseController {
         const body = req.body;
         if(body){
             try{
-                // confirm the type of user sent by client is valid
+                // This is checking that the user_type_id sent by client is a valid type of user 
+                // in the database. For Example: Talent,Audience,Professional
+
                 const userType = await this.lib.db.model('UserType').findById({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
-                // get roles for the type of user
+
+                // We are getting the roles of the user based on the type of user the client sent
                 const roles = await this.lib.db.model('Role').find({ user_type_id: body.user_type_id });
-                let newUser;
-                let scopes;
-                console.log(userType.name.toUpperCase());
-                switch(userType.name.toUpperCase()){
-                    case UNTAPPEDUSERTYPES.TALENT:
-                        console.log('switch called');
-                        newUser = await this.createUser(roles, body);
-                        // send Talent welcome pack mail
-                        // this.sendWelcomePack({emailType: 'Welcome Pack', receivers})
-                        this.writeHAL(res, newUser.token);
-                    break;
-                    case UNTAPPEDUSERTYPES.AUDIENCE:
-                        newUser = this.createUser(roles,body);
-                        // send Audience welcome pack mail
-                        this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
-                    break;
-                    case UNTAPPEDUSERTYPES.PROFESSIONAL:
-                        newUser = this.createUser(roles,body);
-                        // send Professional welcome pack mail
-                        this.writeHAL(res, new ApiResponse(newUser.user,newUser.token, scopes))
-                    break;
-                    default:
-                        // return something here
-                        //next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
-                    break;
-                }
+                
+                const newUser = await this.createUser(roles, body);
+                this.writeHAL(res, newUser.token);
             }catch(err){
                 next(res, this.Error(res,'InternalServerError', err.message))
             }
@@ -97,9 +77,6 @@ class Users extends BaseController {
     }
 
     async createUser(roles, body){
-        //console.log('create user called with these roles', roles);
-        // audience is the clientId and must be sent by the client
-        //const key = await this.getCurrentApiKey();
         let signOptions = {
             issuer: JWTOPTIONS.ISSUER,
             subject: '',
@@ -119,9 +96,9 @@ class Users extends BaseController {
         let newUser = await this.lib.db.model('User')(userObj);
         const user = await newUser.save();
         
-        /* The user has not yet verified email, sending them a token with empty scopes
-        * is to allow them into the app with limited permissions
-        */
+        // The user has not yet verified email, sending them a token with empty scopes
+        // is to allow them into the app with limited permissions
+        // This is applicable to all types of users in the database
 
         const token = await user.generateAuthToken(privateKey, signOptions, payload);
         await user.addRoles(user._id, roles);
