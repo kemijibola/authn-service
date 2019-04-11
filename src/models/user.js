@@ -23,14 +23,12 @@ module.exports = function(db){
         }
         return halObj;
     }
-    modelDef.schema.methods.addRoles = function(id, roles){
-        console.log(this);
-        const user = this;
-        roles.map(r => {
-            user.roles.push(r);
-        });
+    modelDef.schema.methods.addRoles = async function(id, roles){
+        const user =  await db.model('User').findById(id);
+        user.roles.push(...roles);
         return user.save();
     }
+
     modelDef.schema.pre('save', function save(next){
         const user = this;
         if (!user.isModified('password')) { return next(); }
@@ -43,11 +41,13 @@ module.exports = function(db){
           });
         });
     })
-    modelDef.schema.methods.generateAuthToken = async function(privateKey, signOptions, scopes = {}){
-        // the extra data to be sent back to user
-        // user_id => sub
-        // scopes = {}
-        return await jwt.sign({id: this._id}, privateKey, signOptions);
+    modelDef.schema.methods.generateAuthToken = async function(privateKey, signOptions, payload = {}){
+        /*  extra data to be sent back to user is an object = { scopes: [], user_type: ''}
+        **   and any extra information the system might need
+        */
+        
+        signOptions.subject = this._id.toString();
+        return await jwt.sign(payload, privateKey, signOptions);
     }
     modelDef.schema.methods.comparePassword = function comparePassword(candidatePassword, cb){
             bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {

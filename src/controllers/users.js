@@ -13,6 +13,11 @@ class Users extends BaseController {
         this.lib = lib;
     }
     async login(req, res, next){
+
+        /* In login implementation, use audience to send back scopes of the user
+        **   For example: ClientApp1 is an audience, send back roles needed for clientApp1
+        */ 
+       
         let body = req.body;
         if (body){
             if (!body.email || !body.password) { next(this.Error('InvalidContent', 'Provide email and password.')); }
@@ -42,15 +47,17 @@ class Users extends BaseController {
                 const userType = await this.lib.db.model('UserType').findById({ _id: body.user_type_id })
                 if(!userType) return next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
                 // get roles for the type of user
-                const roles = await this.lib.db.model('Role').find({ userTypeId: body.user_type_id });
+                const roles = await this.lib.db.model('Role').find({ user_type_id: body.user_type_id });
                 let newUser;
                 let scopes;
+                console.log(userType.name.toUpperCase());
                 switch(userType.name.toUpperCase()){
                     case UNTAPPEDUSERTYPES.TALENT:
+                        console.log('switch called');
                         newUser = await this.createUser(roles, body);
                         // send Talent welcome pack mail
                         // this.sendWelcomePack({emailType: 'Welcome Pack', receivers})
-                        this.writeHAL(res, new ApiResponse(newUser.user, newUser.token,scopes));
+                        this.writeHAL(res, newUser.token);
                     break;
                     case UNTAPPEDUSERTYPES.AUDIENCE:
                         newUser = this.createUser(roles,body);
@@ -63,6 +70,8 @@ class Users extends BaseController {
                         this.writeHAL(res, new ApiResponse(newUser.user,newUser.token, scopes))
                     break;
                     default:
+                        // return something here
+                        //next(this.Error(res, 'EntityNotFound', `Could not determine user type of: ${ body.user_type_id }`))
                     break;
                 }
             }catch(err){
@@ -88,10 +97,12 @@ class Users extends BaseController {
     }
 
     async createUser(roles, body){
+        //console.log('create user called with these roles', roles);
         // audience is the clientId and must be sent by the client
         //const key = await this.getCurrentApiKey();
         let signOptions = {
             issuer: JWTOPTIONS.ISSUER,
+            subject: '',
             audience: body.audience,
             expiresIn: JWTOPTIONS.EXPIRESIN,
             algorithm: config.publicKeys[JWTOPTIONS.CURRENTKEY].type,
@@ -101,17 +112,25 @@ class Users extends BaseController {
             email: body.email,
             password: body.password    
         }
+        const payload = {
+            scopes: []
+        };
         const privateKey = config.secretKeys[JWTOPTIONS.CURRENTKEY].replace(/\\n/g, '\n');
         let newUser = await this.lib.db.model('User')(userObj);
         const user = await newUser.save();
-        const token = await user.generateAuthToken(privateKey, signOptions);
+        
+        /* The user has not yet verified email, sending them a token with empty scopes
+        * is to allow them into the app with limited permissions
+        */
+
+        const token = await user.generateAuthToken(privateKey, signOptions, payload);
         await user.addRoles(user._id, roles);
-        return { user: user, token: token };
+        return { token: token };
     }
 
     async getCurrentApiKey(){
 
-        // production implementation (AWS)
+        // production implementation store private key in (AWS)
 
         let params = {
             Bucket: 'jether-tech-credentials',
@@ -128,13 +147,6 @@ class Users extends BaseController {
                 }
             }
         });
-        
-        // fetch from .env in development
-
-        // return await this.lib.db.model('Key')
-        // .findOne({activated: true})
-        // .select('kid privateKey type')
-        // .cache();
     }
 
     async sendWelcomePack(data){
