@@ -3,7 +3,6 @@ const ErrorHandler = require('../lib/errorHandler');
 const {ERRORCODES} = require('../lib/constants');
 const logger = require('../lib/logger');
 const mongoose = require('mongoose');
-const {ObjectId} = require('mongodb')
 const helpers = require('../lib/helpers');
 
 class BaseController {
@@ -16,7 +15,8 @@ class BaseController {
         this.server = app;
         this.actions.forEach(action => {
             let method = action['spec']['method'];
-            logger.info(`Setting up auto-doc for (${method} ) - ${action['spec']['nickName']}`)
+            // uncomment when setting up swagger
+            // logger.info(`Setting up auto-doc for (${method} ) - ${action['spec']['nickName']}`)
             //sw['add' + method](action);
             app[method.toLowerCase()](action['spec']['path'], action['action']);
         });
@@ -56,7 +56,7 @@ class BaseController {
             let newArr = obj.map(item => {
                 if (typeof(item._id) === 'string'){
                     item._id = mongoose.Types.ObjectId(item._id);
-                    let json = JSON.stringify(item) //toJSON()                
+                    let json = JSON.stringify(item)               
                     return helpers.makeHAL(json);  
                 }
                 return item.toHAL();

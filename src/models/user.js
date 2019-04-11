@@ -3,6 +3,7 @@ const jsonSelect  = require('mongoose-json-select');
 const helpers = require("../lib/helpers");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-nodejs');
+const config = require('config');
 
 module.exports = function(db){
     let schema = require('../schemas/user.js');
@@ -22,13 +23,12 @@ module.exports = function(db){
         }
         return halObj;
     }
-    modelDef.schema.statics.addRoles = function(id, roles){
-        const user = this.findById(id);
-        roles.map(r => {
-            user.roles.push(r);
-        });
+    modelDef.schema.methods.addRoles = async function(id, roles){
+        const user =  await db.model('User').findById(id);
+        user.roles.push(...roles);
         return user.save();
     }
+
     modelDef.schema.pre('save', function save(next){
         const user = this;
         if (!user.isModified('password')) { return next(); }
@@ -41,11 +41,13 @@ module.exports = function(db){
           });
         });
     })
-    modelDef.schema.methods.generateAuthToken = function(scopes , privateKey, signOptions){
-        // the extra data to be sent back to user
-        // user_id => sub
-        // scopes = []
-        return jwt.sign(scopes, privateKey, signOptions);
+    modelDef.schema.methods.generateAuthToken = async function(privateKey, signOptions, payload = {}){
+        /*  extra data to be sent back to user is an object = { scopes: [], user_type: ''}
+        **   and any extra information the system might need
+        */
+        
+        signOptions.subject = this._id.toString();
+        return await jwt.sign(payload, privateKey, signOptions);
     }
     modelDef.schema.methods.comparePassword = function comparePassword(candidatePassword, cb){
             bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
