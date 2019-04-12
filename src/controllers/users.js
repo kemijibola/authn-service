@@ -14,10 +14,9 @@ class Users extends BaseController {
     }
     async login(req, res, next){
 
-        /* In login implementation, use audience to send back scopes of the user
+        /* In login implementation, use audience and user roles to send back scopes(permissions) of the user
         **   For example: ClientApp1 is an audience, send back roles needed for clientApp1
         */ 
-       
         let body = req.body;
         if (body){
             if (!body.email || !body.password) { next(this.Error('InvalidContent', 'Provide email and password.')); }
@@ -53,6 +52,7 @@ class Users extends BaseController {
                 const roles = await this.lib.db.model('Role').find({ user_type_id: body.user_type_id });
                 
                 const newUser = await this.createUser(roles, body);
+                // send WelcomePack Mail based on type of user
                 this.writeHAL(res, newUser.token);
             }catch(err){
                 next(res, this.Error(res,'InternalServerError', err.message))
