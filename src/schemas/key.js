@@ -10,11 +10,11 @@ module.exports = {
             "type": "string",
             "description": "Key type. i.e RSA256."
         },
-        "publicKey": {
+        "public_key": {
             "type": "string",
             "description": "Public key.",
         },
-        "privateKey": {
+        "private_key": {
             "type": "string",
             "description": "Private key.",
         },

@@ -7,17 +7,17 @@ module.exports = {
                "type": {
                     "type": 'string'
                 },
-                "publicKey": {
+                "public_key": {
                     "type": 'string'
                 },
-                "privateKey": {
+                "private_key": {
                     "type": 'string'
                 },
                 "activated": {
                     "type": "boolean"
                 }
             },
-            "required": ['type', 'publicKey', 'privateKey', 'activated']
+            "required": ['type', 'public_key', 'private_key', 'activated']
         }
     },
     "PUT": {

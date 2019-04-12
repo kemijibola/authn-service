@@ -10,44 +10,44 @@ module.exports = {
             "type": "string",
             "description": "Password of user."
         },
-        "emailConfirmed": {
+        "email_confirmed": {
             "type": "boolean",
             "default": false,
             "description": "User email confirmation status."
         },
-        "phoneConfimed": {
+        "phone_confimed": {
             "type": "boolean",
             "default": false,
             "description": " User phone number confirmation status."
         },
-        "profileCompleted": {
+        "profile_completed": {
             "type": "boolean",
             "default": false,
             "description": "Profile completetion status."
         },
-        "generalNotification": {
+        "general_notification": {
             "type": "boolean",
             "default": true,
             "description": "User generation notification preference."
         },
-        "emailNotification": {
+        "email_notification": {
             "type": "boolean",
             "default": true,
             "description": "User email notification preference."
         },
-        "profileVisibility": {
+        "profile_visibility": {
             "type": "boolean",
             "default": true,
             "description": "User profile visibility preference."
         },
-        "loginCount": {
+        "login_count": {
             "type": "number",
             "default": 0,
             "description": "User login count."
         },
         "status": {
             "type": "array",
-            "description": "User account status. Could be array of any type of object",
+            "description": "User account status. Could be array of any type",
             "items": {
                 "type": "mixed"
             }

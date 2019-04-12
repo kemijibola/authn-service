@@ -9,7 +9,7 @@ module.exports = (options) => {
         throw (new ErrorHandler('The app has not been started.'));
     }
     if (!options.port) {
-        throw (new ErrorHandler('The server must be started with an available port'))
+        throw (new ErrorHandler('Authentication server must be started with an available port'))
     }
 
     const { app, port } = options;
