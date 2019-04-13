@@ -1,6 +1,6 @@
 module.exports = function(db){
     return {
-        "AccountStatus": require('./accountStatus')(db),
+        "Application": require('./application'),
         "UserType": require('./userType')(db),
         "User": require('./user')(db),
         "Role": require('./role')(db),
